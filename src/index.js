@@ -56,8 +56,9 @@ function checkReturnForState(editorState, ev) {
       ev.shiftKey ||
       ev.metaKey ||
       ev.altKey ||
-      /^header-/.test(type) ||
-      type === "blockquote")
+      (/^header-/.test(type) &&
+        selection.isCollapsed() &&
+        selection.getEndOffset() === text.length))
   ) {
     newEditorState = insertEmptyBlock(editorState);
   }
@@ -220,8 +221,8 @@ const createMarkdownPlugin = (config = {}) => {
       }
       let newEditorState = editorState;
       let buffer = [];
+      // eslint-disable-next-line no-plusplus
       for (let i = 0; i < text.length; i++) {
-        // eslint-disable-line no-plusplus
         if (INLINE_STYLE_CHARACTERS.indexOf(text[i]) >= 0) {
           newEditorState = replaceText(
             newEditorState,
