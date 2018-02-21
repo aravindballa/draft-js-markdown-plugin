@@ -91,7 +91,7 @@ const createMarkdownPlugin = (config = {}) => {
     store,
     blockRenderMap: Map({
       "code-block": {
-        element: "code",
+        element: "span",
         wrapper: <pre spellCheck={"false"} />,
       },
     }).merge(checkboxBlockRenderMap),
