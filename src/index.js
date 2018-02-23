@@ -78,7 +78,14 @@ function checkReturnForState(editorState, ev) {
       );
       newEditorState = insertEmptyBlock(newEditorState);
     } else {
-      newEditorState = insertText(editorState, "\n");
+      const codeBlockNewLine =
+        text[text.length - 1] === "\n" && text[text.length - 2] === "\n";
+
+      if (codeBlockNewLine) {
+        newEditorState = insertEmptyBlock(editorState);
+      } else {
+        newEditorState = insertText(editorState, "\n");
+      }
     }
   }
 
