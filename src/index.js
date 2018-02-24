@@ -7,6 +7,7 @@ import {
 } from "draft-js-checkable-list-item";
 
 import { Map } from "immutable";
+import { RichUtils } from "draft-js";
 
 import adjustBlockDepth from "./modifiers/adjustBlockDepth";
 import handleBlockType from "./modifiers/handleBlockType";
@@ -194,6 +195,8 @@ const createMarkdownPlugin = (config = {}) => {
       return "not-handled";
     },
     handleKeyCommand(command, editorState, { setEditorState }) {
+      // eslint-disable-next-line
+      console.log(command);
       switch (command) {
         case "backspace": {
           // When a styled block is the first thing in the editor,
@@ -215,6 +218,18 @@ const createMarkdownPlugin = (config = {}) => {
           if (!isEmpty || currentBlockType === "unstyled") return "not-handled";
 
           setEditorState(changeCurrentBlockType(editorState, "unstyled", ""));
+          return "handled";
+        }
+        case "bold": {
+          setEditorState(RichUtils.toggleInlineStyle(editorState, "BOLD"));
+          return "handled";
+        }
+        case "italic": {
+          setEditorState(RichUtils.toggleInlineStyle(editorState, "ITALIC"));
+          return "handled";
+        }
+        case "underline": {
+          setEditorState(RichUtils.toggleInlineStyle(editorState, "UNDERLINE"));
           return "handled";
         }
         default: {
