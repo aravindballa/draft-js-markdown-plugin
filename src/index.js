@@ -7,7 +7,7 @@ import {
 } from "draft-js-checkable-list-item";
 
 import { Map } from "immutable";
-import { RichUtils } from "draft-js";
+import { RichUtils, getDefaultKeyBinding, KeyBindingUtil } from "draft-js";
 
 import adjustBlockDepth from "./modifiers/adjustBlockDepth";
 import handleBlockType from "./modifiers/handleBlockType";
@@ -22,9 +22,10 @@ import changeCurrentBlockType from "./modifiers/changeCurrentBlockType";
 import createLinkDecorator from "./decorators/link";
 import createImageDecorator from "./decorators/image";
 import { replaceText } from "./utils";
-import { CODE_BLOCK_REGEX } from "./constants";
+import { CODE_BLOCK_REGEX, Block, Inline } from "./constants";
 
 const INLINE_STYLE_CHARACTERS = [" ", "*", "_"];
+// const { hasCommandModifier, isCtrlKeyCommand, isOptionKeyCommand } = KeyBindingUtil;
 
 function checkCharacterForState(editorState, character) {
   let newEditorState = handleBlockType(editorState, character);
@@ -195,8 +196,6 @@ const createMarkdownPlugin = (config = {}) => {
       return "not-handled";
     },
     handleKeyCommand(command, editorState, { setEditorState }) {
-      // eslint-disable-next-line
-      console.log(command);
       switch (command) {
         case "backspace": {
           // When a styled block is the first thing in the editor,
@@ -221,15 +220,41 @@ const createMarkdownPlugin = (config = {}) => {
           return "handled";
         }
         case "bold": {
-          setEditorState(RichUtils.toggleInlineStyle(editorState, "BOLD"));
+          setEditorState(RichUtils.toggleInlineStyle(editorState, Inline.BOLD));
           return "handled";
         }
         case "italic": {
-          setEditorState(RichUtils.toggleInlineStyle(editorState, "ITALIC"));
+          setEditorState(
+            RichUtils.toggleInlineStyle(editorState, Inline.ITALIC)
+          );
           return "handled";
         }
         case "underline": {
-          setEditorState(RichUtils.toggleInlineStyle(editorState, "UNDERLINE"));
+          setEditorState(
+            RichUtils.toggleInlineStyle(editorState, Inline.UNDERLINE)
+          );
+          return "handled";
+        }
+        case "header-one": {
+          setEditorState(RichUtils.toggleBlockType(editorState, Block.H1));
+          return "handled";
+        }
+        case "header-two": {
+          setEditorState(RichUtils.toggleBlockType(editorState, Block.H2));
+          return "handled";
+        }
+        case "ordered-list-item": {
+          setEditorState(RichUtils.toggleBlockType(editorState, Block.OL));
+          return "handled";
+        }
+        case "unordered-list-item": {
+          setEditorState(RichUtils.toggleBlockType(editorState, Block.UL));
+          return "handled";
+        }
+        case "code-block": {
+          setEditorState(
+            RichUtils.toggleBlockType(editorState, Block.CODEBLOCK)
+          );
           return "handled";
         }
         default: {
@@ -277,6 +302,27 @@ const createMarkdownPlugin = (config = {}) => {
         return "handled";
       }
       return "not-handled";
+    },
+
+    keyBindingFn(e) {
+      if (e.altKey === true) {
+        if (e.keyCode === 49) {
+          return Block.H1;
+        }
+        if (e.keyCode === 50) {
+          return Block.H2;
+        }
+        if (e.keyCode === 56) {
+          return Block.UL;
+        }
+        if (e.keyCode === 55) {
+          return Block.OL;
+        }
+        if (e.keyCode === 75) {
+          return Block.CODEBLOCK;
+        }
+      }
+      return getDefaultKeyBinding(e);
     },
   };
 };
